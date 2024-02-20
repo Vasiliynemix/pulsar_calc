@@ -311,10 +311,8 @@ async def on_algorithm_consumption(
         course=course,
         price_for_electricity=user.price_for_electricity,
     )
-    await bot.send_photo(
-        chat_id=message.from_user.id,
-        photo=FSInputFile(cfg.paths.calc_image_path),
-        caption=caption,
+    await message.answer(
+        text=caption,
         reply_markup=kb.main_menu_kb.back_to_main_menu_mp(),
         parse_mode="HTML",
     )
