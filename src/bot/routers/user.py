@@ -169,7 +169,7 @@ async def on_product_click(
         )
         return
 
-    course = await redis.get_course() - 1
+    course = await redis.get_course() + 1
     caption = await calc.start_calculate_by_algorithm_and_get_text(
         algorithm="",
         mining_profitability_usdt=mining_profitability_usdt,
@@ -296,7 +296,7 @@ async def on_algorithm_consumption(
         )
         return
 
-    course = await redis.get_course() - 1
+    course = await redis.get_course() + 1
     consumption = float(message.text)
     product = Product(
         name=data.get("algorithm"),
