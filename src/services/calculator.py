@@ -129,7 +129,7 @@ class Calculator:
                 terahesh=product.terahesh,
                 consumption=product.consumption / 1000,
                 price_usdt=product.price,
-                price_rub=round(product.price * course + 1, format_round),
+                price_rub=round(product.price * (course + 1), format_round),
                 mining_profitability_usdt=round(
                     mining_profitability_usdt, format_round
                 ),
@@ -168,7 +168,7 @@ class Calculator:
                 terahesh=product.terahesh,
                 consumption=product.consumption / 1000,
                 price_usdt=product.price,
-                price_rub=round(product.price * course + 1, format_round),
+                price_rub=round(product.price * (course + 1), format_round),
                 mining_profitability_usdt=round(
                     mining_profitability_usdt, format_round
                 ),
