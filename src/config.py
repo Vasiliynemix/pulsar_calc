@@ -82,6 +82,7 @@ class Config:
     admins: list[int] = field(
         default_factory=lambda: list(map(int, os.getenv("ADMINS").split(",")))
     )
+    manager_username: str = os.getenv("MANAGER_USERNAME")
 
     time_format = os.getenv("TIME_FORMAT")
 

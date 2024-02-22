@@ -36,13 +36,16 @@ class TgBot:
         self.routers: tuple[Router] | None = None
         self.cfg: Config | None = None
         self.lexicon = lexicon
-        self.keyboard = Keyboard(self.lexicon.kb_name)
+        self.keyboard = None
 
     def set_routers(self, routers: tuple[Router]) -> None:
         self.routers = routers
 
     def set_cfg(self, cfg: Config) -> None:
         self.cfg = cfg
+
+    def set_keyboards(self, keyboard: Keyboard) -> None:
+        self.keyboard = keyboard
 
     async def run(self) -> None:
         try:

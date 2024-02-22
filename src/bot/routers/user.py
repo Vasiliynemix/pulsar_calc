@@ -181,7 +181,7 @@ async def on_product_click(
     await callback.message.answer("Начал расчет...")
     await callback.message.answer(
         text=caption,
-        reply_markup=kb.main_menu_kb.back_to_main_menu_mp(),
+        reply_markup=kb.main_menu_kb.chat_manager_mp(False),
         parse_mode="HTML",
     )
 
@@ -329,7 +329,7 @@ async def on_back_to_main_menu_new_msg_click(
     kb: Keyboard,
 ):
     await callback.answer()
-    await callback.message.edit_reply_markup(reply_markup=None)
+    await callback.message.edit_reply_markup(reply_markup=kb.main_menu_kb.chat_manager_mp(True))
     await callback.message.answer(
         text=lexicon.send.on_main_menu.format(user.price_for_electricity),
         reply_markup=kb.main_menu_kb.on_main_menu_mp(

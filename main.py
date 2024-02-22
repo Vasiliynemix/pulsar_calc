@@ -5,6 +5,7 @@ from loguru import logger
 
 from pkg.logging import Logger
 from src.bot.bot import TgBot
+from src.bot.keyboards.keyboards import Keyboard
 from src.bot.lexicon.lexicon import Lexicon
 from src.bot.routers.routers import routers
 from src.config import Config
@@ -55,8 +56,10 @@ async def main() -> None:
         course_getter=course_getter,
         exel_provider=exel_provider,
     )
+    kb = Keyboard(lexicon.kb_name, cfg)
     tg_bot.set_routers(routers)
     tg_bot.set_cfg(cfg)
+    tg_bot.set_keyboards(kb)
 
     await asyncio.gather(
         tg_bot.run(),

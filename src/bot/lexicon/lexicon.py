@@ -2,7 +2,10 @@ MAIN_MENU_KB = "🏠Главное меню"
 CALCULATOR_KB = "🧮Калькулятор"
 PRICE_SETTER_KB = "💡🔧Изменить цену за электроэнергию"
 BACK_KB = "⬅️Назад"
+
+CHAT_TO_MANAGER_KB = "👥Чат с менеджером"
 BACK_TO_MAIN_MENU_KB = "🏠В главное меню"
+
 CANCEL_KB = "❌Отмена"
 YES_KB = "✅Да"
 NO_KB = "❌Нет"
@@ -214,6 +217,10 @@ class Lexicon:
                 "reply": ALGORITHM_KB,
                 "inline": ALGORITHM_KB,
             },
+            "chat_to_manager": {
+                "reply": CHAT_TO_MANAGER_KB,
+                "inline": CHAT_TO_MANAGER_KB,
+            },
         },
     }
 
@@ -284,9 +291,12 @@ class LexiconMsgKbName:
         self.cancel = LexiconMsgKbNameReplyInline(self._lexicon["cancel"])
         self.back = LexiconMsgKbNameReplyInline(self._lexicon["back"])
         self.algorithm = LexiconMsgKbNameReplyInline(self._lexicon["algorithm"])
+
+        self.chat_to_manager = LexiconMsgKbNameReplyInline(self._lexicon["chat_to_manager"])
         self.back_to_main_menu = LexiconMsgKbNameReplyInline(
             self._lexicon["back_to_main_menu"]
         )
+
         self.no_category_in_db = LexiconMsgKbNameReplyInline(
             self._lexicon["no_category_in_db"]
         )

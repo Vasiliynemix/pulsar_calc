@@ -6,6 +6,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from src.bot.lexicon.lexicon import LexiconMsgKbName
+from src.config import Config
 from src.storage.db.models import Product
 
 
@@ -41,8 +42,9 @@ class ProductsData(CallbackData, prefix=f"p_m_m"):
 
 
 class MainMenuKeyboard:
-    def __init__(self, kb_name: LexiconMsgKbName) -> None:
+    def __init__(self, kb_name: LexiconMsgKbName, cfg: Config) -> None:
         self._kb_name = kb_name
+        self._cfg = cfg
 
     def on_main_menu_mp(
         self, price_for_electricity: float | None, is_admin: bool = False
@@ -190,5 +192,21 @@ class MainMenuKeyboard:
                 action=MainMenuActions.back_to_main_menu_new_msg
             ).pack(),
         )
+        builder.adjust(1)
+        return builder.as_markup()
+
+    def chat_manager_mp(self, is_remove_back_to_main_menu_mp: bool) -> InlineKeyboardMarkup:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text=self._kb_name.chat_to_manager.inline,
+            url=f"https://t.me/{self._cfg.manager_username}",
+        )
+        if not is_remove_back_to_main_menu_mp:
+            builder.button(
+                text=self._kb_name.back_to_main_menu.inline,
+                callback_data=MainMenuData(
+                    action=MainMenuActions.back_to_main_menu_new_msg
+                ).pack(),
+            )
         builder.adjust(1)
         return builder.as_markup()
