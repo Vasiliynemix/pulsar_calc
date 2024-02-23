@@ -54,7 +54,7 @@ class MainMenuKeyboard:
             text=self._kb_name.calculator.inline,
             callback_data=MainMenuData(action=MainMenuActions.calculator).pack(),
         )
-        if price_for_electricity:
+        if price_for_electricity or price_for_electricity == 0:
             builder.button(
                 text=self._kb_name.price_setter.inline,
                 callback_data=MainMenuData(action=MainMenuActions.price_setter).pack(),
