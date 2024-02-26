@@ -29,7 +29,21 @@ router = Router()
 async def course_command(message: Message, redis: RedisDatabase):
     current_course_ask = await redis.get_course_ask()
     current_course_bid = await redis.get_course_bid()
-    if current_course_ask is None or current_course_bid is None:
+    if current_course_ask is None:
+        await message.answer(
+            text=(
+                f"<b>Курс покупки:</b>\n1 usdt = {current_course_bid} ₽"
+            ),
+            parse_mode="HTML",
+        )
+        return
+    if current_course_bid is None:
+        await message.answer(
+            text=(
+                f"<b>Курс продажи:</b>\n1 usdt = {current_course_ask} ₽"
+            ),
+            parse_mode="HTML",
+        )
         return
     await message.answer(
         text=(
