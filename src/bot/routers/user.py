@@ -1,11 +1,7 @@
-from datetime import datetime, timezone, timedelta
-
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message, FSInputFile
-from loguru import logger
-
+from aiogram.types import CallbackQuery, Message
 from src.bot.keyboards.keyboards import Keyboard
 from src.bot.keyboards.main_menu import (
     MainMenuData,
@@ -30,28 +26,10 @@ router = Router()
 async def course_command(message: Message, redis: RedisDatabase):
     current_course_ask = await redis.get_course_ask()
     current_course_bid = await redis.get_course_bid()
-    logger.info(f"Current course ask: {current_course_ask}")
-    logger.info(f"Current course bid: {current_course_bid}")
-    if current_course_ask is None:
-        await message.answer(
-            text=(
-                f"<b>Курс покупки:</b>\n1 usdt = {current_course_bid} ₽"
-            ),
-            parse_mode="HTML",
-        )
-        return
-    if current_course_bid is None:
-        await message.answer(
-            text=(
-                f"<b>Курс продажи:</b>\n1 usdt = {current_course_ask} ₽"
-            ),
-            parse_mode="HTML",
-        )
-        return
     await message.answer(
         text=(
-            f"<b>Курс продажи:</b>\n1 usdt = {current_course_ask} ₽\n\n"
-            f"<b>Курс покупки:</b>\n1 usdt = {current_course_bid} ₽"
+            f"<b>Курс продажи:</b>\n1 usdt = {current_course_ask if current_course_ask else 'Не установлен'} ₽\n\n"
+            f"<b>Курс покупки:</b>\n1 usdt = {current_course_bid if current_course_bid else 'Не установлен'} ₽"
         ),
         parse_mode="HTML",
     )
