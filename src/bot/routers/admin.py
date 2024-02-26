@@ -22,8 +22,45 @@ from src.bot.utils.loop import send_messages_async
 from src.services.excel_provider import ExcelProvider
 from src.storage.db.db import Database
 from src.storage.db.models import User
+from src.storage.redis.db_redis import RedisDatabase
 
 router = Router()
+
+
+@router.message(Command("rate_ask"), AdminFilter())
+async def course_ask_command(message: Message, redis: RedisDatabase, lexicon: Lexicon):
+    try:
+        course_ask = message.text.split(" ")[1].strip().replace(",", ".")
+    except IndexError:
+        await message.answer(text=lexicon.send.cmd_rate_set_err)
+        return
+    try:
+        float(course_ask)
+    except ValueError:
+        await message.answer(text=lexicon.send.cmd_rate_set_err)
+        return
+    await redis.set_course_ask(float(course_ask) + 1)
+    await message.answer(
+        text=lexicon.send.cmd_rate_set_ok.format("продажи", float(course_ask) + 1)
+    )
+
+
+@router.message(Command("rate_bid"), AdminFilter())
+async def course_ask_command(message: Message, redis: RedisDatabase, lexicon: Lexicon):
+    try:
+        course_bid = message.text.split(" ")[1].strip().replace(",", ".")
+    except IndexError:
+        await message.answer(text=lexicon.send.cmd_rate_set_err)
+        return
+    try:
+        float(course_bid)
+    except ValueError:
+        await message.answer(text=lexicon.send.cmd_rate_set_err)
+        return
+    await redis.set_course_bid(float(course_bid) - 1)
+    await message.answer(
+        text=lexicon.send.cmd_rate_set_ok.format("покупки", float(course_bid) - 1)
+    )
 
 
 @router.callback_query(

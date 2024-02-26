@@ -27,10 +27,17 @@ router = Router()
 
 @router.message(Command("rate"))
 async def course_command(message: Message, redis: RedisDatabase):
-    current_course = await redis.get_course()
-    if current_course is None:
+    current_course_ask = await redis.get_course_ask()
+    current_course_bid = await redis.get_course_bid()
+    if current_course_ask is None or current_course_bid is None:
         return
-    await message.answer(f"1 usdt = {current_course} ₽")
+    await message.answer(
+        text=(
+            f"<b>Курс продажи:</b>\n1 usdt = {current_course_ask} ₽\n\n"
+            f"<b>Курс покупки:</b>\n1 usdt = {current_course_bid} ₽"
+        ),
+        parse_mode="HTML",
+    )
 
 
 @router.callback_query(
@@ -169,7 +176,7 @@ async def on_product_click(
         )
         return
 
-    course = await redis.get_course() - 1
+    course = await redis.get_course_ask() - 1
     caption = await calc.start_calculate_by_algorithm_and_get_text(
         algorithm="",
         mining_profitability_usdt=mining_profitability_usdt,
@@ -296,7 +303,7 @@ async def on_algorithm_consumption(
         )
         return
 
-    course = await redis.get_course() - 1
+    course = await redis.get_course_ask() - 1
     consumption = float(message.text)
     product = Product(
         name=data.get("algorithm"),
@@ -329,7 +336,9 @@ async def on_back_to_main_menu_new_msg_click(
     kb: Keyboard,
 ):
     await callback.answer()
-    await callback.message.edit_reply_markup(reply_markup=kb.main_menu_kb.chat_manager_mp(True))
+    await callback.message.edit_reply_markup(
+        reply_markup=kb.main_menu_kb.chat_manager_mp(True)
+    )
     await callback.message.answer(
         text=lexicon.send.on_main_menu.format(user.price_for_electricity),
         reply_markup=kb.main_menu_kb.on_main_menu_mp(

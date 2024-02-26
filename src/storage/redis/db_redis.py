@@ -28,9 +28,16 @@ class RedisDatabase:
             data_ttl=self._cfg.redis.data_ttl,
         )
 
-    async def set_course(self, course: float) -> None:
-        await self._redis.set("course", course)
+    async def set_course_ask(self, course_ask: float) -> None:
+        await self._redis.set("course_ask", course_ask)
 
-    async def get_course(self) -> float | None:
-        current_course = await self._redis.get("course")
+    async def set_course_bid(self, course_bid: float) -> None:
+        await self._redis.set("course_bid", course_bid)
+
+    async def get_course_ask(self) -> float | None:
+        current_course = await self._redis.get("course_ask")
+        return float(current_course) if current_course else None
+
+    async def get_course_bid(self) -> float | None:
+        current_course = await self._redis.get("course_bid")
         return float(current_course) if current_course else None
