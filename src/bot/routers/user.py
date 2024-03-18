@@ -27,9 +27,9 @@ async def course_command(message: Message, redis: RedisDatabase):
     current_course_ask = await redis.get_course_ask()
     current_course_bid = await redis.get_course_bid()
     text = (
-            f"<b>Курс продажи:</b>\n1 usdt = {str(current_course_ask) + ' ₽' if current_course_ask else 'Не установлен'}\n\n"
-            f"<b>Курс покупки:</b>\n1 usdt = {str(current_course_bid) + ' ₽' if current_course_bid else 'Не установлен'}"
-        )
+        f"<b>Курс продажи:</b>\n1 usdt = {str(current_course_ask) + ' ₽' if current_course_ask else 'Не установлен'}\n\n"
+        f"<b>Курс покупки:</b>\n1 usdt = {str(current_course_bid) + ' ₽' if current_course_bid else 'Не установлен'}"
+    )
     await message.answer(
         text=text,
         parse_mode="HTML",
@@ -172,10 +172,19 @@ async def on_product_click(
         )
         return
 
+    btc_on_usdt = await profit.parse_btc_on_usdt()
+    if btc_on_usdt is None:
+        await callback.answer(
+            text="Ошибка на сервере, попробуйте позже...",
+            cache_time=30,
+        )
+        return
+
     course = await redis.get_course_ask() - 1
     caption = await calc.start_calculate_by_algorithm_and_get_text(
         algorithm="",
         mining_profitability_usdt=mining_profitability_usdt,
+        btc_on_usdt=btc_on_usdt,
         product=product,
         course=course,
         price_for_electricity=user.price_for_electricity,
@@ -299,6 +308,14 @@ async def on_algorithm_consumption(
         )
         return
 
+    btc_on_usdt = await profit.parse_btc_on_usdt()
+    if btc_on_usdt is None:
+        await message.answer(
+            text="Ошибка на сервере, попробуйте позже...",
+            cache_time=30,
+        )
+        return
+
     course = await redis.get_course_ask() - 1
     consumption = float(message.text)
     product = Product(
@@ -310,6 +327,7 @@ async def on_algorithm_consumption(
     caption = await calc.start_calculate_by_algorithm_and_get_text(
         algorithm=data.get("algorithm"),
         mining_profitability_usdt=mining_profitability_usdt,
+        btc_on_usdt=btc_on_usdt,
         product=product,
         course=course,
         price_for_electricity=user.price_for_electricity,

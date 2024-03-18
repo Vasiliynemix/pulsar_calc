@@ -31,11 +31,18 @@ class RedisDatabase:
     async def set_course_ask(self, course_ask: float) -> None:
         await self._redis.set("course_ask", course_ask)
 
+    async def set_course_btc_ask(self, course_ask: float) -> None:
+        await self._redis.set("course_btc_ask", course_ask)
+
     async def set_course_bid(self, course_bid: float) -> None:
         await self._redis.set("course_bid", course_bid)
 
     async def get_course_ask(self) -> float | None:
         current_course = await self._redis.get("course_ask")
+        return float(current_course) if current_course else None
+
+    async def get_course_btc_ask(self) -> float | None:
+        current_course = await self._redis.get("course_btc_ask")
         return float(current_course) if current_course else None
 
     async def get_course_bid(self) -> float | None:

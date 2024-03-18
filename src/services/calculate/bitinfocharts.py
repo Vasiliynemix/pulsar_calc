@@ -1,5 +1,5 @@
 from aiohttp import ClientSession
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString, Tag
 from loguru import logger
 
 from src.storage.db.connect import DBConnect
@@ -30,6 +30,27 @@ class BitinfochartsProfitability:
             logger.error(f"Error while parsing mining profitability: {e}")
         return None
 
+    async def parse_btc_on_usdt(self) -> float | None:
+        btc_on_usdt_info_text = await self.__get_mining_info()
+        soup = BeautifulSoup(btc_on_usdt_info_text, "lxml")
+        try:
+            tr_price_btc = soup.find("tr", {"id": "t_price"})
+
+            if tr_price_btc:
+                td_price_btc_title = tr_price_btc.find("td", text="Price")
+
+                if td_price_btc_title:
+                    td_price_btc_on_usdt = td_price_btc_title.find_next_sibling("td")
+                    btc_on_usdt = await self.__get_btc_on_usdt_by_span(td_price_btc_on_usdt)
+
+                    if btc_on_usdt:
+                        return btc_on_usdt
+
+            logger.error("Error while parsing btc on usdt")
+        except Exception as e:
+            logger.error(f"Error while parsing btc on usdt: {e}")
+        return None
+
     async def __get_mining_info(self) -> str | None:
         try:
             async with ClientSession() as session:
@@ -40,4 +61,15 @@ class BitinfochartsProfitability:
                         logger.error(f"Error while getting mining info: {resp.status}")
         except Exception as e:
             logger.error(f"Error while getting mining info: {e}, {resp.status}")
+        return None
+
+    @staticmethod
+    async def __get_btc_on_usdt_by_span(
+        td_price_btc_on_usdt: Tag | NavigableString | None,
+    ) -> None | float:
+        first_span = td_price_btc_on_usdt.find("span")
+        if first_span:
+            btc_on_usdt = first_span.find("span").text.replace(",", "")
+            return float(btc_on_usdt)
+
         return None
