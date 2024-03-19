@@ -230,12 +230,12 @@ class Calculator:
         cost_day: float,
         profit_white_day: float,
     ) -> tuple[float, float, float]:
-        profit_black_day_usdt = course / profit_black_day
+        profit_black_day_usdt = profit_black_day / course
         if cost_day == 0:
             cost_day_usdt = 0
         else:
-            cost_day_usdt = course / cost_day
-        profit_white_day_usdt = course / profit_white_day
+            cost_day_usdt = cost_day / course
+        profit_white_day_usdt = profit_white_day / course
 
         profit_black_day_btc = profit_black_day_usdt / btc_on_usdt
         cost_day_btc = cost_day_usdt / btc_on_usdt
