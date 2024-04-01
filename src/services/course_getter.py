@@ -16,10 +16,15 @@ class CurrentCoursesGetter:
         self.ua = UserAgent()
 
     async def run(self) -> None:
-        logger.info("start course getter")
-        while True:
-            await self.__save_current_course_to_db()
+        try:
+            logger.info("start course getter")
+            while True:
+                await self.__save_current_course_to_db()
+                await asyncio.sleep(60)
+        except Exception as e:
+            logger.error(f"Error while course getter: {e}")
             await asyncio.sleep(60)
+            await self.run()
 
     async def __save_current_course_to_db(self):
         current_course_ask, current_course_bid, current_course_btc_ask = await self.__parse_html()
