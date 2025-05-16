@@ -9,7 +9,7 @@ from src.storage.redis.db_redis import RedisDatabase
 
 
 class CurrentCoursesGetter:
-    URL = "https://garantex.org/"
+    URL = "https://grinex.io/"
 
     def __init__(self, redis: RedisDatabase):
         self.redis = redis
@@ -47,9 +47,12 @@ class CurrentCoursesGetter:
                     return None
 
     async def __parse_html(self) -> tuple[float, float, float] | tuple[None, None, None]:
+        DEFAULT_ASK = 82.0
+        DEFAULT_BID = 90.0
+        DEFAULT_BTC_ASK = 6_500_000.0
         html_text = await self.__get_html_text()
         if html_text is None:
-            return None, None, None
+            return DEFAULT_ASK, DEFAULT_BID, DEFAULT_BTC_ASK
         soup = BeautifulSoup(html_text, "lxml")
         scripts = soup.find_all("script")
         for script in scripts:
@@ -65,7 +68,7 @@ class CurrentCoursesGetter:
                     current_course_btc_ask += 1
                 return current_course_ask, current_course_bid, current_course_btc_ask
         logger.warning("Current course not found, check parsed html garantex.org")
-        return None, None, None
+        return DEFAULT_ASK, DEFAULT_BID, DEFAULT_BTC_ASK
 
     @staticmethod
     def __get_course(find_text: str, find_key: str, find_value: str):

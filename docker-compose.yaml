@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    container_name: calc_v2
+    container_name: calc_v33
     image: postgres:latest
     restart: always
     environment:
@@ -12,11 +12,11 @@ services:
     ports:
       - "${DB_PORT}:5432"
     volumes:
-      - my_db_v2_data:/var/lib/postgresql/data
+      - my_db_v33_data:/var/lib/postgresql/data
     command: postgres -N 500
 
   redis:
-    container_name: calc_v2_redis
+    container_name: calc_v33_redis
     image: redis:latest
     restart: always
     environment:
@@ -25,16 +25,16 @@ services:
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
-      - my_db_data_v2_redis:/data
+      - my_db_data_v33_redis:/data
     networks:
-      - calc_v2
+      - calc_v33
 
 volumes:
-  my_db_v2_data:
+  my_db_v33_data:
     driver: local
-  my_db_data_v2_redis:
+  my_db_data_v33_redis:
     driver: local
 
 networks:
-  calc_v2:
+  calc_v33:
     driver: bridge

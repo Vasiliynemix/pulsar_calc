@@ -54,14 +54,15 @@ class ExcelProvider:
         book = load_workbook(filename=table_path)
         sheet = book["products"]
 
-        for row, product in enumerate(products, start=2):
-            sheet.cell(row=row, column=1, value=f"{row - 1}")
-            sheet.cell(row=row, column=2, value=f"{product.category}")
-            sheet.cell(row=row, column=3, value=f"{product.name}")
-            sheet.cell(row=row, column=4, value=f"{self.__to_int_if_possible(product.terahesh)}")
-            sheet.cell(row=row, column=5, value=f"{self.__to_int_if_possible(product.consumption)}")
-            sheet.cell(row=row, column=6, value=f"{self.__to_int_if_possible(product.price)}")
-            sheet.cell(row=row, column=7, value=f"{product.algorithm}")
+        if products is not None:
+            for row, product in enumerate(products, start=2):
+                sheet.cell(row=row, column=1, value=f"{row - 1}")
+                sheet.cell(row=row, column=2, value=f"{product.category}")
+                sheet.cell(row=row, column=3, value=f"{product.name}")
+                sheet.cell(row=row, column=4, value=f"{self.__to_int_if_possible(product.terahesh)}")
+                sheet.cell(row=row, column=5, value=f"{self.__to_int_if_possible(product.consumption)}")
+                sheet.cell(row=row, column=6, value=f"{self.__to_int_if_possible(product.price)}")
+                sheet.cell(row=row, column=7, value=f"{product.algorithm}")
 
         book.save(table_path)
 
