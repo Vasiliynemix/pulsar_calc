@@ -49,8 +49,8 @@ class TgBot:
 
     async def run(self) -> None:
         try:
-            # storage = await self.storage.redis.get_redis_storage()
-            storage = MemoryStorage()
+            storage = await self.storage.redis.get_redis_storage()
+            # storage = MemoryStorage()
             dp = self.__get_dispatcher(storage=storage)
 
             try:
