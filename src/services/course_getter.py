@@ -47,9 +47,9 @@ class CurrentCoursesGetter:
                     return None
 
     async def __parse_html(self) -> tuple[float, float, float] | tuple[None, None, None]:
-        DEFAULT_ASK = 82.0
-        DEFAULT_BID = 90.0
-        DEFAULT_BTC_ASK = 6_500_000.0
+        DEFAULT_ASK = 83.0
+        DEFAULT_BID = 79.0
+        DEFAULT_BTC_ASK = 8348308.51
         html_text = await self.__get_html_text()
         if html_text is None:
             return DEFAULT_ASK, DEFAULT_BID, DEFAULT_BTC_ASK
