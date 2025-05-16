@@ -11,19 +11,24 @@ class BitinfochartsProfitability:
     def __init__(self, db_connect: DBConnect) -> None:
         self.db_connect = db_connect
 
-    async def parse_mining_profitability_usdt(self) -> float | None:
+    async def parse_mining_profitability_usdt(self, coin: str) -> float | None:
         mining_info_text = await self.__get_mining_info()
         soup = BeautifulSoup(mining_info_text, "lxml")
         try:
             td_mining_profitability_title = soup.find("td", text="Mining Profitability")
             if td_mining_profitability_title:
-                td_mining_profitability_text = (
-                    td_mining_profitability_title.find_next_sibling("td")
-                )
-                if td_mining_profitability_text:
-                    return float(
-                        td_mining_profitability_text.text.strip().split(" ")[0]
-                    )
+                tr_containing_td = td_mining_profitability_title.parent
+                td_with_specific_class = tr_containing_td.find("td", class_=f'c_{coin}')
+                if td_with_specific_class:
+                    return float(td_with_specific_class.text.strip().split(" ")[0])
+
+                # td_mining_profitability_text = (
+                #     td_mining_profitability_title.find_next_sibling("td")
+                # )
+                # if td_mining_profitability_text:
+                #     return float(
+                #         td_mining_profitability_text.text.strip().split(" ")[0]
+                #     )
 
             logger.error("Error while parsing mining profitability")
         except Exception as e:

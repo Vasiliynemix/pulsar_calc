@@ -2,12 +2,13 @@ from datetime import datetime, timezone, timedelta
 from typing import Any
 
 from src.bot.lexicon.lexicon import Lexicon
+from src.bot.utils.loop import choose_metering
 from src.config import Config
 from src.storage.db.models import Product
 
 
 class Calculator:
-    ALGORITHMS = ["sha256"]
+    ALGORITHMS = ["SHA256", "Scrypt", "KHeavyHash"]
 
     def __init__(self, lexicon: Lexicon, cfg: Config) -> None:
         self.algorithms: list = self.ALGORITHMS
@@ -22,29 +23,36 @@ class Calculator:
         product: Product,
         course: float,
         price_for_electricity: float,
+        is_algorithm: bool = False,
     ) -> str | None:
         result = None
-        if len(self.algorithms) == 0 or algorithm not in self.algorithms:
-            result = await self.default_calculate(
-                mining_profitability_usdt=mining_profitability_usdt,
-                product=product,
-                course=course,
-                price_for_electricity=price_for_electricity,
-            )
-        else:
-            if algorithm == self.algorithms[0]:
-                result = await self.default_calculate(
-                    mining_profitability_usdt=mining_profitability_usdt,
-                    product=product,
-                    course=course,
-                    price_for_electricity=price_for_electricity,
-                )
-            elif algorithm == self.algorithms[1]:
-                pass
+        algorithm_lower = algorithm.lower()
+        algorithm_lower_list = [alg.lower() for alg in self.algorithms]
+        # if len(self.algorithms) == 0 or algorithm_lower not in algorithm_lower_list:
+        result = await self.default_calculate(
+            mining_profitability_usdt=mining_profitability_usdt,
+            product=product,
+            course=course,
+            price_for_electricity=price_for_electricity,
+        )
+        # else:
+        #     if algorithm_lower == algorithm_lower_list[0]:
+        #         result = await self.default_calculate(
+        #             mining_profitability_usdt=mining_profitability_usdt,
+        #             product=product,
+        #             course=course,
+        #             price_for_electricity=price_for_electricity,
+        #         )
+        #     elif algorithm_lower == algorithm_lower_list[1]:
+        #         pass
+        #     elif algorithm_lower == algorithm_lower_list[2]:
+        #         pass
 
         if result is None:
             return None
-        return await self.__create_text(algorithm, result, product, btc_on_usdt)
+        return await self.__create_text(
+            algorithm, result, product, btc_on_usdt, is_algorithm
+        )
 
     @staticmethod
     async def default_calculate(
@@ -73,7 +81,11 @@ class Calculator:
         result: dict[str, float],
         product: Product,
         btc_on_usdt: float,
+        is_algorithm: bool,
     ) -> str | tuple[Any]:
+        algorithm_lower = algorithm.lower()
+        algorithm_lower_list = [alg.lower() for alg in self.algorithms]
+
         profit_black_day = result["profit_black_day"]
         cost_day = result["cost_day"]
         profit_white_day = result["profit_white_day"]
@@ -83,7 +95,10 @@ class Calculator:
         mining_profitability_usdt = result["mining_profitability_usdt"]
         format_round = 2
         time_now = datetime.now(tz=timezone.utc) + timedelta(hours=3)
-        if algorithm == "":
+        metering_text = choose_metering(self.algorithms, algorithm)
+        metering = metering_text.split("/")[0]
+        # if algorithm_lower == "":
+        if not is_algorithm:
             return self.__default_text(
                 mining_profitability_usdt=mining_profitability_usdt,
                 product=product,
@@ -95,24 +110,26 @@ class Calculator:
                 term=term,
                 time_now=time_now,
                 btc_on_usdt=btc_on_usdt,
+                metering=metering,
                 format_round=format_round,
             )
-        elif algorithm == self.algorithms[0]:
-            return self.__algorithm_text(
-                mining_profitability_usdt=mining_profitability_usdt,
-                product=product,
-                course=course,
-                price_for_electricity=price_for_electricity,
-                profit_black_day=profit_black_day,
-                cost_day=cost_day,
-                profit_white_day=profit_white_day,
-                term=term,
-                time_now=time_now,
-                btc_on_usdt=btc_on_usdt,
-                format_round=format_round,
-            )
-        elif algorithm == self.algorithms[1]:
-            pass
+        # elif algorithm_lower == algorithm_lower_list[0]:
+        return self.__algorithm_text(
+            mining_profitability_usdt=mining_profitability_usdt,
+            product=product,
+            course=course,
+            price_for_electricity=price_for_electricity,
+            profit_black_day=profit_black_day,
+            cost_day=cost_day,
+            profit_white_day=profit_white_day,
+            term=term,
+            time_now=time_now,
+            btc_on_usdt=btc_on_usdt,
+            metering=metering,
+            format_round=format_round,
+        )
+        # elif algorithm_lower == algorithm_lower_list[1]:
+        #     pass
 
     def __default_text(
         self,
@@ -126,6 +143,7 @@ class Calculator:
         term: float,
         time_now: datetime,
         btc_on_usdt: float,
+        metering: str,
         format_round: int = 2,
     ) -> str | tuple[Any]:
         profit_white_day_btc, cost_day_btc, profit_black_day_btc = self.__get_price_btc(
@@ -138,6 +156,7 @@ class Calculator:
         text = (
             self.lexicon.send.on_product_click.format(
                 name=product.name,
+                metering=metering,
                 terahesh=product.terahesh,
                 consumption=product.consumption / 1000,
                 price_usdt=product.price,
@@ -153,11 +172,15 @@ class Calculator:
                 profit_white_day=round(profit_white_day, format_round),
                 profit_white_day_btc=self.__format_btc_value(profit_white_day_btc),
                 profit_black_moth=round(profit_black_day * 30.5, format_round),
-                profit_black_moth_btc=self.__format_btc_value(profit_black_day_btc * 30.5),
+                profit_black_moth_btc=self.__format_btc_value(
+                    profit_black_day_btc * 30.5
+                ),
                 cost_moth=round(cost_day * 30.5, format_round),
                 cost_moth_btc=self.__format_btc_value(cost_day_btc * 30.5),
                 profit_white_moth=round(profit_white_day * 30.5, format_round),
-                profit_white_moth_btc=self.__format_btc_value(profit_white_day_btc * 30.5),
+                profit_white_moth_btc=self.__format_btc_value(
+                    profit_white_day_btc * 30.5
+                ),
                 term=round(term, 1),
                 time_now=time_now.strftime(self.cfg.time_format),
                 course=course,
@@ -180,6 +203,7 @@ class Calculator:
         term: float,
         time_now: datetime,
         btc_on_usdt: float,
+        metering: str,
         format_round: int = 2,
     ) -> str | tuple[Any]:
         profit_white_day_btc, cost_day_btc, profit_black_day_btc = self.__get_price_btc(
@@ -193,6 +217,7 @@ class Calculator:
             self.lexicon.send.algorithm_calculate.format(
                 name=product.name,
                 terahesh=product.terahesh,
+                metering=metering,
                 consumption=product.consumption / 1000,
                 price_usdt=product.price,
                 price_rub=round(product.price * (course + 1), format_round),
@@ -207,11 +232,15 @@ class Calculator:
                 profit_white_day=round(profit_white_day, format_round),
                 profit_white_day_btc=self.__format_btc_value(profit_white_day_btc),
                 profit_black_moth=round(profit_black_day * 30.5, format_round),
-                profit_black_moth_btc=self.__format_btc_value(profit_black_day_btc * 30.5),
+                profit_black_moth_btc=self.__format_btc_value(
+                    profit_black_day_btc * 30.5
+                ),
                 cost_moth=round(cost_day * 30.5, format_round),
                 cost_moth_btc=cost_day_btc * 30.5,
                 profit_white_moth=round(profit_white_day * 30.5, format_round),
-                profit_white_moth_btc=self.__format_btc_value(profit_white_day_btc * 30.5),
+                profit_white_moth_btc=self.__format_btc_value(
+                    profit_white_day_btc * 30.5
+                ),
                 term=round(term, 1),
                 time_now=time_now.strftime(self.cfg.time_format),
                 course=course,
@@ -250,7 +279,7 @@ class Calculator:
         # # Представляем значение в миллибиткоинах (1 BTC = 1000 mBTC)
         # btc_in_m_btc = float(rounded_btc) * 1000
 
-        formatted_btc = "{:.8f}".format(btc_value).rstrip('0')
+        formatted_btc = "{:.8f}".format(btc_value).rstrip("0")
         if formatted_btc == "0.":
             formatted_btc = "0.0"
 

@@ -12,6 +12,7 @@ from src.bot.keyboards.main_menu import (
 )
 from src.bot.lexicon.lexicon import Lexicon
 from src.bot.states.user_state import UserSetPriceForElectricityState, AlgorithmState
+from src.bot.utils.loop import choose_coin, choose_metering
 from src.config import Config
 from src.services.calculate.bitinfocharts import BitinfochartsProfitability
 from src.services.calculator import Calculator
@@ -164,7 +165,9 @@ async def on_product_click(
         )
         return
 
-    mining_profitability_usdt = await profit.parse_mining_profitability_usdt()
+    coin = choose_coin(calc.ALGORITHMS, product.algorithm)
+
+    mining_profitability_usdt = await profit.parse_mining_profitability_usdt(coin)
     if mining_profitability_usdt is None:
         await callback.answer(
             text="Ошибка на сервере, попробуйте позже...",
@@ -182,7 +185,7 @@ async def on_product_click(
 
     course = await redis.get_course_ask() - 1
     caption = await calc.start_calculate_by_algorithm_and_get_text(
-        algorithm="",
+        algorithm=product.algorithm,
         mining_profitability_usdt=mining_profitability_usdt,
         btc_on_usdt=btc_on_usdt,
         product=product,
@@ -228,13 +231,18 @@ async def on_one_algorithm_click(
     state: FSMContext,
     lexicon: Lexicon,
     kb: Keyboard,
+    calc: Calculator,
 ):
     await state.set_state(AlgorithmState.terahesh)
     await state.update_data(algorithm=callback_data.algorithm)
+
+    metering_text = choose_metering(calc.ALGORITHMS, callback_data.algorithm)
+
     msg = await callback.message.edit_text(
-        text=lexicon.send.on_one_algorithm,
+        text=lexicon.send.on_one_algorithm.format(metering_text=metering_text),
         reply_markup=kb.main_menu_kb.cancel_mp(),
     )
+
     await state.update_data(msg_id_to_remove_mp=msg.message_id)
 
 
@@ -300,7 +308,9 @@ async def on_algorithm_consumption(
         await state.update_data(msg_id_to_remove_mp=msg.message_id)
         return
 
-    mining_profitability_usdt = await profit.parse_mining_profitability_usdt()
+    coin = choose_coin(calc.ALGORITHMS, data.get("algorithm"))
+
+    mining_profitability_usdt = await profit.parse_mining_profitability_usdt(coin)
     if mining_profitability_usdt is None:
         await message.answer(
             text="Ошибка на сервере, попробуйте позже...",
@@ -331,7 +341,15 @@ async def on_algorithm_consumption(
         product=product,
         course=course,
         price_for_electricity=user.price_for_electricity,
+        is_algorithm=True,
     )
+    if caption is None:
+        await message.answer(
+            text="Ошибка на сервере, попробуйте позже...",
+            cache_time=30,
+        )
+        return
+
     await message.answer(
         text=caption,
         reply_markup=kb.main_menu_kb.back_to_main_menu_mp(),

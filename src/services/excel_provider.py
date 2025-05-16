@@ -1,8 +1,11 @@
 import os
+import shutil
 
 import pandas as pd
 from loguru import logger
+from openpyxl.reader.excel import load_workbook
 
+from src.config import cfg
 from src.storage.db.models import Product
 
 
@@ -21,26 +24,46 @@ class ExcelProvider:
         pass
 
     async def create(self, file_path: str, products: list[Product] | None = None):
-        df = pd.DataFrame(columns=self.PRODUCT_COLUMNS)
-        if products:
-            products_list = []
-            for i, product in enumerate(products):
-                products_list.append(
-                    {
-                        self.PRODUCT_COLUMNS[0]: i + 1,
-                        self.PRODUCT_COLUMNS[1]: product.category,
-                        self.PRODUCT_COLUMNS[2]: product.name,
-                        self.PRODUCT_COLUMNS[3]: product.terahesh,
-                        self.PRODUCT_COLUMNS[4]: product.consumption,
-                        self.PRODUCT_COLUMNS[5]: product.price,
-                        self.PRODUCT_COLUMNS[6]: product.algorithm,
-                    },
-                )
-            df = pd.DataFrame.from_records(products_list)
+        # df = pd.DataFrame(columns=self.PRODUCT_COLUMNS)
+        #
+        # if products:
+        #     products_list = []
+        #     for i, product in enumerate(products):
+        #         products_list.append(
+        #             {
+        #                 self.PRODUCT_COLUMNS[0]: i + 1,
+        #                 self.PRODUCT_COLUMNS[1]: product.category,
+        #                 self.PRODUCT_COLUMNS[2]: product.name,
+        #                 self.PRODUCT_COLUMNS[3]: product.terahesh,
+        #                 self.PRODUCT_COLUMNS[4]: product.consumption,
+        #                 self.PRODUCT_COLUMNS[5]: product.price,
+        #                 self.PRODUCT_COLUMNS[6]: product.algorithm,
+        #             },
+        #         )
+        #     df = pd.DataFrame.from_records(products_list)
+        #
+        # writer = pd.ExcelWriter(file_path, engine="xlsxwriter")
+        # df.to_excel(writer, sheet_name="Продукты", index=False)
+        # writer.close()
 
-        writer = pd.ExcelWriter(file_path, engine="xlsxwriter")
-        df.to_excel(writer, sheet_name="Продукты", index=False)
-        writer.close()
+        table_path = shutil.copy(
+            src=cfg.paths.products_template_path,
+            dst=file_path,
+        )
+
+        book = load_workbook(filename=table_path)
+        sheet = book["products"]
+
+        for row, product in enumerate(products, start=2):
+            sheet.cell(row=row, column=1, value=f"{row - 1}")
+            sheet.cell(row=row, column=2, value=f"{product.category}")
+            sheet.cell(row=row, column=3, value=f"{product.name}")
+            sheet.cell(row=row, column=4, value=f"{self.__to_int_if_possible(product.terahesh)}")
+            sheet.cell(row=row, column=5, value=f"{self.__to_int_if_possible(product.consumption)}")
+            sheet.cell(row=row, column=6, value=f"{self.__to_int_if_possible(product.price)}")
+            sheet.cell(row=row, column=7, value=f"{product.algorithm}")
+
+        book.save(table_path)
 
     async def parse(self, file_path: str) -> list[Product] | str | None:
         try:
@@ -85,3 +108,9 @@ class ExcelProvider:
     async def delete(file_path: str):
         if os.path.exists(file_path):
             os.remove(file_path)
+
+    @staticmethod
+    def __to_int_if_possible(value: float) -> int | float:
+        if value.is_integer():
+            return int(value)
+        return value

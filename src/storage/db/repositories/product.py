@@ -31,7 +31,7 @@ class ProductRepo:
             )
             await self.session.commit()
         except Exception as e:
-            logger.error(f"Error while adding product to DB: {e}")
+            raise Exception(f"Error while adding product to DB: {e}")
 
     async def get_all(self) -> list[Product]:
         stmt = select(Product)

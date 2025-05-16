@@ -59,6 +59,13 @@ class PathsConfig:
     start_image_name: str = os.getenv("START_IMAGE_NAME")
     calc_image_name: str = os.getenv("CALC_IMAGE_NAME")
 
+    templates_dir_name: str = os.getenv("TEMPLATES_DIR_NAME")
+    products_template_name: str = os.getenv("PRODUCTS_TEMPLATE_FILE_NAME")
+
+    @property
+    def products_template_path(self) -> str:
+        return os.path.join(self.root_path, self.templates_dir_name, self.products_template_name)
+
     @property
     def info_log_path(self) -> str:
         return os.path.join(self.root_path, self.log_dir_name, self.info_log_file_name)
@@ -90,3 +97,6 @@ class Config:
     db: DBConfig = field(default_factory=DBConfig)
     redis: RedisConfig = field(default_factory=RedisConfig)
     paths: PathsConfig = field(default_factory=PathsConfig)
+
+
+cfg = Config()

@@ -84,7 +84,7 @@ class Lexicon:
             "on_products_set_click": (
                 "Отправьте измененный файл списка товаров 🤖 боту.👇"
             ),
-            "on_one_algorithm_click": "Введи количество Th/s(терахеш).👇",
+            "on_one_algorithm_click": "Введи количество {metering_text}",
             "on_products_set_err": "Отправьте документ в формате xlsx.👇",
             "on_products_set_err_value": (
                 "⚠️Неверное значение.\n\n"
@@ -120,7 +120,7 @@ class Lexicon:
             "on_category_click": "🔍Выберите товар для расчета доходности.",
             "on_algorithm_click": "🔍Выберите алгоритм для расчета доходности.",
             "algorithm_calculate": (
-                "<b>Алгоритм: {name} {terahesh} Th.</b>\n"
+                "<b>Алгоритм: {name} {terahesh} {metering}.</b>\n"
                 "<b>Потребление: {consumption} кВт/ч.</b>\n\n"
                 "<b>Цена за 1 кВт/ч: {price_for_electricity} ₽.</b>\n"
                 "<b>----------------------------------</b>\n"
@@ -138,7 +138,7 @@ class Lexicon:
                 "<b>1 BTC = {btc_on_usdt} USDT.</b>"
             ),
             "on_product_click": (
-                "<b>Модель: {name} {terahesh} Th.</b>\n\n"
+                "<b>Модель: {name} {terahesh} {metering}.</b>\n\n"
                 "<b>Потребление: {consumption} кВт/ч.</b>\n"
                 "<b>Стоимость: {price_rub} ₽ ({price_usdt} usdt).</b>\n\n"
                 "<b>Цена за 1 кВт/ч: {price_for_electricity} ₽.</b>\n"

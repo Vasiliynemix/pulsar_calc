@@ -6,7 +6,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from src.bot.lexicon.lexicon import LexiconMsgKbName
+from src.bot.utils.loop import choose_metering
 from src.config import Config
+from src.services.calculator import Calculator
 from src.storage.db.models import Product
 
 
@@ -42,9 +44,10 @@ class ProductsData(CallbackData, prefix=f"p_m_m"):
 
 
 class MainMenuKeyboard:
-    def __init__(self, kb_name: LexiconMsgKbName, cfg: Config) -> None:
+    def __init__(self, kb_name: LexiconMsgKbName, cfg: Config, calc: Calculator) -> None:
         self._kb_name = kb_name
         self._cfg = cfg
+        self.calc = calc
 
     def on_main_menu_mp(
         self, price_for_electricity: float | None, is_admin: bool = False
@@ -131,13 +134,15 @@ class MainMenuKeyboard:
         builder = InlineKeyboardBuilder()
         if len(products) != 0:
             for product in products:
+                metering_text = choose_metering(self.calc.ALGORITHMS, product.algorithm)
+                metering = metering_text.split("/")[0]
                 terahesh = product.terahesh
                 if terahesh.is_integer():
                     terahesh = int(terahesh)
                 consumption = product.consumption
                 if consumption.is_integer():
                     consumption = int(consumption)
-                text = f"⛏️{product.name} {terahesh} Th {consumption} Вт"
+                text = f"⛏️{product.name} {terahesh} {metering} {consumption} Вт"
                 ikb_product = InlineKeyboardButton(
                     text=text,
                     callback_data=ProductsData(

@@ -56,7 +56,7 @@ async def main() -> None:
         course_getter=course_getter,
         exel_provider=exel_provider,
     )
-    kb = Keyboard(lexicon.kb_name, cfg)
+    kb = Keyboard(lexicon.kb_name, cfg, calc)
     tg_bot.set_routers(routers)
     tg_bot.set_cfg(cfg)
     tg_bot.set_keyboards(kb)

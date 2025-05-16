@@ -6,6 +6,7 @@ from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message, FSInputFile
+from loguru import logger
 
 from src.bot.filters.filters import AdminFilter
 from src.bot.keyboards.admin_menu import (
@@ -181,14 +182,18 @@ async def products_set(
 
     await db.product.delete_all()
     for product in products:
-        await db.product.set(
-            category=product.category,
-            name=product.name,
-            terahesh=product.terahesh,
-            consumption=product.consumption,
-            price=product.price,
-            algorithm=product.algorithm,
-        )
+        try:
+            await db.product.set(
+                category=product.category,
+                name=product.name,
+                terahesh=product.terahesh,
+                consumption=product.consumption,
+                price=product.price,
+                algorithm=product.algorithm,
+            )
+        except Exception as e:
+            logger.error(f"Error while adding product to DB: {e}")
+
     await excel.delete(file_path)
     await state.clear()
     await message.answer(text=lexicon.send.on_products_set_success)

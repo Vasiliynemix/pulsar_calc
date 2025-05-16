@@ -43,3 +43,29 @@ async def send_msg(
         await db.user.update(user)
     except Exception as e:
         logger.error(e)
+
+
+def choose_coin(all_algorithms: list[str], algorithm: str) -> str:
+    coin = "btc"
+    if algorithm in all_algorithms:
+        if all_algorithms[0] == algorithm:
+            coin = "btc"
+        elif all_algorithms[1] == algorithm:
+            coin = "doge"
+        elif all_algorithms[2] == algorithm:
+            coin = "doge"
+
+    return coin
+
+
+def choose_metering(all_algorithms: list[str], algorithm: str) -> str:
+    metering = "Th/s (Терахеш)👇\n\n💡 Например: 180 или 200."
+    if algorithm in all_algorithms:
+        if all_algorithms[0] == algorithm:
+            metering = metering
+        elif all_algorithms[1] == algorithm:
+            metering = "Gh/s (Гигахеш)👇\n\n💡 Например: 7 или 9."
+        elif all_algorithms[2] == algorithm:
+            metering = "Gh/s (Гигахеш)👇\n\n💡 Например: 7 или 9."
+
+    return metering
