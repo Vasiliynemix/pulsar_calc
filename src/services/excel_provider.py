@@ -68,10 +68,20 @@ class ExcelProvider:
 
     async def parse(self, file_path: str) -> list[Product] | str | None:
         try:
-            df = pd.read_excel(file_path)
+            df = pd.read_excel(file_path)  # noqa
             products = []
             for index, row in df.iterrows():
                 try:
+                    if (
+                            pd.isnull(row[self.PRODUCT_COLUMNS[1]])
+                            and pd.isnull(row[self.PRODUCT_COLUMNS[2]])
+                            and pd.isnull(row[self.PRODUCT_COLUMNS[3]])
+                            and pd.isnull(row[self.PRODUCT_COLUMNS[4]])
+                            and pd.isnull(row[self.PRODUCT_COLUMNS[6]])
+                            and pd.isnull(row[self.PRODUCT_COLUMNS[6]])
+                    ):
+                        continue
+
                     if pd.isnull(row[self.PRODUCT_COLUMNS[1]]):
                         raise ValueError
                     if pd.isnull(row[self.PRODUCT_COLUMNS[2]]):
