@@ -8,7 +8,8 @@ from src.storage.db.models import Product
 
 
 class Calculator:
-    ALGORITHMS = ["SHA256", "Scrypt", "KHeavyHash"]
+    ALGORITHMS = ["SHA256"]
+    # ALGORITHMS = ["SHA256", "Scrypt", "KHeavyHash"]
 
     def __init__(self, lexicon: Lexicon, cfg: Config) -> None:
         self.algorithms: list = self.ALGORITHMS
