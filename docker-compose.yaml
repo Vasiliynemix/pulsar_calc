@@ -27,7 +27,7 @@ services:
     volumes:
       - my_db_data_v2_redis:/data
     networks:
-      - code_film
+      - calc_v2
 
 volumes:
   my_db_v2_data:
